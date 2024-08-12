@@ -17,17 +17,17 @@ Full docs are available on [pkg.go.dev](https://pkg.go.dev/github.com/manterfiel
 
 The lookup syntax is pretty straightforward and intentionally simplistic:
 
-`{"a": "a_val"}, "a" = "a_val"`
+`source: {"a": "a_val"}, lookup: "a" = "a_val"`
 
-`{"a": {"b": "b_val"}}, "a.b" = "b_val"`
+`source: {"a": {"b": "b_val"}}, lookup: "a.b" = "b_val"`
 
-`{"a": [0, 1, 2]}, "a.2" = 2`
+`source: {"a": [0, 1, 2]}, lookup: "a.2" = 2`
 
-`{"a": {"2": "2_val"}}, "a.2" = "2_val"`
+`source: {"a": {"2": "2_val"}}, lookup: "a.2" = "2_val"`
 
 and of course deeper lookups are fine too:
 
-`{"a": [{"b": {"c": [0, 1, 2]}}]}, "a.0.b.c.1" = 1`
+`source: {"a": [{"b": {"c": [0, 1, 2]}}]}, lookup: "a.0.b.c.1" = 1`
 
 **Simple examples:**
 
