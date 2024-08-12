@@ -18,8 +18,11 @@ Full docs are available on [pkg.go.dev](https://pkg.go.dev/github.com/manterfiel
 The lookup syntax is pretty straightforward and intentionally simplistic:
 
 `{"a": "a_val"}`, "a" = "a_val"`
+
 `{"a": {"b": "b_val"}}, "a.b" = "b_val"`
+
 `{"a": [0, 1, 2]}, "a.2" = 2`
+
 `{"a": {"2": "2_val"}}, "a.2" = "2_val"`
 
 and of course deeper lookups are fine too:
