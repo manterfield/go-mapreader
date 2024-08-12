@@ -17,7 +17,7 @@ Full docs are available on [pkg.go.dev](https://pkg.go.dev/github.com/manterfiel
 
 The lookup syntax is pretty straightforward and intentionally simplistic:
 
-`{"a": "a_val"}`, "a" = "a_val"`
+`{"a": "a_val"}, "a" = "a_val"`
 
 `{"a": {"b": "b_val"}}, "a.b" = "b_val"`
 
