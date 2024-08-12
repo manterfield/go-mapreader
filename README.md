@@ -1,8 +1,8 @@
 # Golang Map Reader
 
-`mapreader` is a tiny Golang library for accessing arbitrary keys from nested map[string]interface{} with strict result types.
+`mapreader` is a tiny Golang library for accessing arbitrary keys from (potentially nested) map[string]interface{} with correctly typed return values.
 
-It uses a simple string lookup path argument to find retrieve the values, delimitted by '.'
+It uses a simple string lookup path argument to retrieve the values, delimitted by '.'
 If an array is encountered it will automatically attempt to use the current path component as an integer
 
 ## Installation
