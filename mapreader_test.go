@@ -127,15 +127,39 @@ func TestGetTypes(t *testing.T) {
 			expected: true,
 		},
 		{
+			name:     "Get a byte array from string",
+			source:   []byte(`{"a": "value"}`),
+			path:     "a",
+			expected: []byte("value"),
+		},
+		{
+			name:        "Get a null value",
+			source:      []byte(`{"a": null}`),
+			path:        "a",
+			expected:    "",
+			expectedErr: ErrUnexpectedType,
+		},
+		{
 			name:   "Get a map",
 			source: []byte(`{"a": {"b": true}}`),
 			path:   "a",
-			expected: map[string]any{
+			expected: map[string]bool{
 				"b": true,
 			},
 		},
-		// Test slices of above types
-		// Test behaviour with nil values
+		{
+			name:        "Mixed JSON array",
+			source:      []byte(`{"a": [true, "false", true]}`),
+			path:        "a",
+			expected:    []bool(nil),
+			expectedErr: ErrUnableToConvert,
+		},
+		{
+			name:     "Slice of bools",
+			source:   []byte(`{"a": [true, false, true]}`),
+			path:     "a",
+			expected: []bool{true, false, true},
+		},
 	}
 
 	for _, tc := range tests {
@@ -162,9 +186,15 @@ func TestGetTypes(t *testing.T) {
 			case bool:
 				result, err = BoolErr(source, tc.path)
 				altResult = Bool(source, tc.path)
-			case map[string]any:
-				result, err = MapStrAnyErr(source, tc.path)
-				altResult = MapStrAny(source, tc.path)
+			case []bool:
+				result, err = SliceErr[bool](source, tc.path)
+				altResult = Slice[bool](source, tc.path)
+			case []byte:
+				result, err = BytesErr(source, tc.path)
+				altResult = Bytes(source, tc.path)
+			case map[string]bool:
+				result, err = MapErr[bool](source, tc.path)
+				altResult = Map[bool](source, tc.path)
 			default:
 				t.Errorf("Unsupported type: %T", tc.expected)
 			}
@@ -174,11 +204,11 @@ func TestGetTypes(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(result, altResult) {
-				t.Errorf("Both variations should return the same value %v != %v", result, altResult)
+				t.Errorf("Both variations should return the same value %#v != %#v", result, altResult)
 			}
 
 			if !reflect.DeepEqual(result, tc.expected) {
-				t.Errorf("Expected: %s but got: %s", tc.expected, result)
+				t.Errorf("Expected: %#v but got: %#v", tc.expected, result)
 			}
 		})
 	}
@@ -214,6 +244,4 @@ func TestGetGenerics(t *testing.T) {
 	if result != "hello" {
 		t.Errorf("Expected: hello but got: %s", result)
 	}
-
-	// TODO: Test generic numeric
 }
