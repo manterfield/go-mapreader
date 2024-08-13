@@ -1,14 +1,4 @@
 // Package mapreader grabs type safe elements from values of map[string]any using a string lookup path.
-// The lookup syntax is a simple string delimitted by '.'
-// If an array is encountered it will attempt to use the current path component as an integer
-//
-// Examples:
-// {"a": "a_val"}, "a" = "a_val"
-// {"a": {"b": "b_val"}}, "a.b" = "b_val"
-// {"a": [0, 1, 2]}, "a.2" = 2
-// {"a": {"2": "2_val"}}, "a.2" = "2_val"
-// and of course deeper lookups are fine too:
-// {"a": [{"b": {"c": [0, 1, 2]}}]}, "a.0.b.c.1" = 1
 package mapreader
 
 import (
