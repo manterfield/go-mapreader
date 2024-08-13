@@ -16,12 +16,12 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"golang.org/x/exp/constraints"
 )
 
 type number interface {
-	constraints.Integer | constraints.Float
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+		~float32 | ~float64
 }
 
 var (
@@ -40,6 +40,23 @@ var (
 // Use mapreader.GetErr if you would like to return errors
 func Get[T any](source map[string]any, path string) T {
 	return withoutError(GetErr[T](source, path))
+}
+
+// GetDefault is a function for generically returning any final value type, or the default value
+//
+// The default value will be returned if the value doesn't exist or would
+// otherwise return an error for any reason (such as an incorrect type)
+//
+// You may prefer using the specific typed functions such as Str, Int, etc
+// providing one is available for your required type.
+// Use mapreader.GetErr if you would like to return errors
+func GetDefault[T any](source map[string]any, path string, d T) T {
+	result, err := GetErr[T](source, path)
+	if err != nil {
+		return d
+	}
+
+	return result
 }
 
 // GetErr is a function for generically returning any final value type
@@ -100,6 +117,11 @@ func Bool(source map[string]any, path string) bool {
 	return withoutError(BoolErr(source, path))
 }
 
+// BoolDefault returns the bool value found at the given lookup path, or the default value
+func BoolDefault(source map[string]any, path string, d bool) bool {
+	return GetDefault(source, path, d)
+}
+
 // BoolErr returns the bool value found at the given lookup path, or returns an error
 //
 // Use mapreader.Bool if you would like to ignore errors
@@ -114,6 +136,19 @@ func BoolErr(source map[string]any, path string) (bool, error) {
 // It will attempt to coerce string values into []bytes if encountered.
 func Bytes(source map[string]any, path string) []byte {
 	return withoutError(BytesErr(source, path))
+}
+
+// BytesDefault returns the []byte value found at the given lookup path, or the default value
+//
+// The default is only returned for values that would otherwise error/aren't set.
+// If a valid nil value is explicitly set, that will be returned instead
+func BytesDefault(source map[string]any, path string, d []byte) []byte {
+	result, err := BytesErr(source, path)
+	if err != nil {
+		return d
+	}
+
+	return result
 }
 
 // BytesErr returns the []byte value found at the given lookup path, or returns an error
@@ -145,6 +180,19 @@ func Float64(source map[string]any, path string) float64 {
 	return withoutError(Float64Err(source, path))
 }
 
+// Float64Default returns the float64 value found at the given lookup path, or the default value
+//
+// The default is only returned for values that would otherwise error/aren't set.
+// If a valid nil value is explicitly set, that will be returned instead
+func Float64Default(source map[string]any, path string, d float64) float64 {
+	result, err := Float64Err(source, path)
+	if err != nil {
+		return d
+	}
+
+	return result
+}
+
 // Float64Err returns the numeric value found at the given lookup path as a float64, or returns an error
 //
 // Use mapreader.Float64 if you would like to ignore errors
@@ -163,6 +211,19 @@ func Int(source map[string]any, path string) int {
 	return withoutError(IntErr(source, path))
 }
 
+// IntDefault returns the int value found at the given lookup path, or the default value
+//
+// The default is only returned for values that would otherwise error/aren't set.
+// If a valid nil value is explicitly set, that will be returned instead
+func IntDefault(source map[string]any, path string, d int) int {
+	result, err := IntErr(source, path)
+	if err != nil {
+		return d
+	}
+
+	return result
+}
+
 // IntErr returns the numeric value found at the given lookup path as a float64, or returns an error
 //
 // Use mapreader.Int if you would like to ignore errors
@@ -178,6 +239,19 @@ func IntErr(source map[string]any, path string) (int, error) {
 // Use mapreader.SliceErr if you would like errors to be returned
 func Slice[V any](source map[string]any, path string) []V {
 	return withoutError(SliceErr[V](source, path))
+}
+
+// SliceDefault returns the slice value found at the given lookup path, or the default value
+//
+// The default is only returned for values that would otherwise error/aren't set.
+// If a valid nil value is explicitly set, that will be returned instead
+func SliceDefault[V any](source map[string]any, path string, d []V) []V {
+	result, err := SliceErr[V](source, path)
+	if err != nil {
+		return d
+	}
+
+	return result
 }
 
 // SliceErr returns the a slice found at the given lookup path with elements asserted to the given type, or returns an error
@@ -201,6 +275,14 @@ func Str(source map[string]any, path string) string {
 	return withoutError(StrErr(source, path))
 }
 
+// StrDefault returns the string value found at the given lookup path, or the default value
+//
+// The default is only returned for values that would otherwise error/aren't set.
+// If a valid nil value is explicitly set, that will be returned instead
+func StrDefault(source map[string]any, path string, d string) string {
+	return GetDefault(source, path, d)
+}
+
 // StrErr returns the string value found at the given lookup path, or returns an error
 //
 // Use mapreader.Str if you would like to ignore errors
@@ -214,6 +296,19 @@ func StrErr(source map[string]any, path string) (string, error) {
 // Use mapreader.MapErr if you would like errors to be returned
 func Map[V any](source map[string]any, path string) map[string]V {
 	return withoutError(MapErr[V](source, path))
+}
+
+// MapDefault returns the map value found at the given lookup path, or the default value
+//
+// The default is only returned for values that would otherwise error/aren't set.
+// If a valid nil value is explicitly set, that will be returned instead
+func MapDefault[V any](source map[string]any, path string, d map[string]V) map[string]V {
+	result, err := MapErr[V](source, path)
+	if err != nil {
+		return d
+	}
+
+	return result
 }
 
 // MapErr returns the a map found at the given lookup path with elements asserted to the given type, or returns an error
@@ -239,6 +334,19 @@ func MapErr[V any](source map[string]any, path string) (map[string]V, error) {
 // e.g. Number[int](source, path) would convert a float64(1) to int(1), but would return 0 for float64(1.5)
 func Number[R number](source map[string]any, path string) R {
 	return withoutError(NumberErr[R](source, path))
+}
+
+// NumberDefault returns the map value found at the given lookup path, or the default value
+//
+// The default is only returned for values that would otherwise error/aren't set.
+// If a valid nil value is explicitly set, that will be returned instead
+func NumberDefault[R number](source map[string]any, path string, d R) R {
+	result, err := NumberErr[R](source, path)
+	if err != nil {
+		return d
+	}
+
+	return result
 }
 
 // NumberErr returns the numeric value found at the given lookup path, or returns an error
@@ -301,6 +409,8 @@ func asNumberType[R number](in any) (R, error) {
 	case uint32:
 		return convertNumber[R](r)
 	case uint64:
+		return convertNumber[R](r)
+	case uintptr:
 		return convertNumber[R](r)
 	default:
 		return 0, fmt.Errorf("%w: %T is not a supported numeric type", ErrUnexpectedType, r)
